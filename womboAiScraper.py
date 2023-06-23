@@ -58,7 +58,7 @@ class Worker(threading.Thread):
     def crop_an_save_image(self, image_src, style, item):
         image_name = item.replace(" ", "_").lower()
         nb_of_same_images = len([name for name in os.listdir(style) if name.split("-")[0] == image_name])
-        image_name = image_name + "-" + str(nb_of_same_images) + IMG_EXTENSIONS
+        image_name = f"{image_name}-{nb_of_same_images}{IMG_EXTENSIONS}"
         image = Image.open(BytesIO(requests.get(image_src).content))
         image = image.crop(CROP_COORDINATES)
         image.save(f"{style}/{image_name}")
@@ -112,12 +112,12 @@ class Worker(threading.Thread):
 if __name__ == "__main__":
     # Set the default directory to the script directory
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
+
     # Asks for number of selenium instances to run
     instances = Prompt.ask("How many instances do you want to run", default=str(INSTANCES))
     try: instances = int(instances)
     except: instances = INSTANCES
-    
+
     # Asks for what to generate
     items_to_generate = Prompt.ask("What do you want to generate (separate items with commas)", default="chicken")
     items_to_generate = items_to_generate.split(",") if "," in items_to_generate else [items_to_generate]
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         if "#" in item: 
             item_instances = int(item.split("#")[1]) -1
             item = item.split("#")[0]
-            items_to_generate.extend([item for x in range(item_instances)])
+            items_to_generate.extend([item for _ in range(item_instances)])
         items_to_generate[i] = item
 
     # Asks for which style(s) to use
